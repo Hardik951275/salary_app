@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Slip - {{ employee.employee_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <div class="slip-actions">
+        <a class="btn secondary" href="{{ url_for('index') }}">← Back</a>
+
+        <form action="{{ url_for('download') }}" method="POST">
+            <input type="hidden" name="employee_id" value="{{ employee.employee_id }}">
+            <input type="hidden" name="year" value="{{ year }}">
+            <input type="hidden" name="month" value="{{ month }}">
+            <button class="btn primary" type="submit">Download PDF</button>
+        </form>
+    </div>
+
+    <div class="salary-paper">
+        <div class="company-header">
+            <div class="company-brand">
+                <img src="{{ url_for('static', filename='2.jpeg') }}"
+                     alt="Six Sense Media"
+                     class="company-logo"
+                     onerror="this.style.display='none'">
+                <div class="company-info">
+                    <h1>{{ company_name or "Six Sense Media" }}</h1>
+                    <p class="company-address">
+                        Office no. 403, Jyoti building, Sheri.10,<br>
+                        Mavdi Main Road, Sri Nath Society,<br>
+                        Rajkot, Gujarat 360004
+                    </p>
+                    <p class="company-contact">
+                        <a href="https://www.sixsensemedia.com">www.sixsensemedia.com</a> &nbsp;|&nbsp;
+                        <a href="mailto:info@sixsensemedia.com">info@sixsensemedia.com</a> &nbsp;|&nbsp;
+                        +91 91046 8495
+                    </p>
+                </div>
+            </div>
+            <div class="slip-title">
+                <p>Salary Slip</p>
+                <strong>{{ month_name }}</strong>
+            </div>
+        </div>
+
+        <div class="employee-box">
+            <div><span>Employee ID</span><strong>{{ employee.employee_id }}</strong></div>
+            <div><span>Employee Name</span><strong>{{ employee.employee_name }}</strong></div>
+            <div><span>Designation</span><strong>{{ employee.designation or "—" }}</strong></div>
+            <div><span>Department</span><strong>{{ employee.department or "—" }}</strong></div>
+            <div><span>Joining Date</span><strong>{{ employee.joining_date or "—" }}</strong></div>
+            <div><span>PAN Number</span><strong>{{ employee.pan_number or "—" }}</strong></div>
+            <div><span>Bank Name</span><strong>{{ employee.bank_name or "—" }}</strong></div>
+            <div><span>Account Number</span><strong>{{ employee.bank_account_number or "—" }}</strong></div>
+            <div><span>IFSC Code</span><strong>{{ employee.ifsc_code or "—" }}</strong></div>
+            <div><span>Working Days</span><strong>{{ calc.working_days }}</strong></div>
+            <div><span>Total Calendar Days</span><strong>{{ calc.total_calendar_days }}</strong></div>
+            <div><span>Salary Month</span><strong>{{ month_name }}</strong></div>
+        </div>
+
+        <h3>Attendance</h3>
+        <div class="salary-table">
+            <div><span>Sunday / Weekly Off</span><strong>{{ calc.sundays }}</strong></div>
+            <div><span>Present Days</span><strong>{{ calc.present_days }}</strong></div>
+            <div><span>Paid Leave</span><strong>{{ calc.paid_leave }}</strong></div>
+            <div><span>Unpaid Leave</span><strong>{{ calc.unpaid_leave }}</strong></div>
+            <div><span>Paid Days</span><strong>{{ calc.paid_days }}</strong></div>
+        </div>
+
+        <h3>Salary Details</h3>
+        <div class="salary-table">
+            <div><span>Basic Salary</span><strong>₹ {{ "%.2f"|format(calc.basic_salary) }}</strong></div>
+            <div><span>Allowance</span><strong>₹ {{ "%.2f"|format(calc.allowance) }}</strong></div>
+            <div><span>Monthly Gross Salary</span><strong>₹ {{ "%.2f"|format(calc.gross_monthly) }}</strong></div>
+            <div><span>Per Working Day</span><strong>₹ {{ "%.2f"|format(calc.per_day_salary) }}</strong></div>
+            <div><span>Earned Gross Salary</span><strong>₹ {{ "%.2f"|format(calc.earned_gross) }}</strong></div>
+            <div><span>Unpaid Leave Deduction</span><strong>₹ {{ "%.2f"|format(calc.unpaid_leave_deduction) }}</strong></div>
+            <div><span>Other / Fixed Deduction</span><strong>₹ {{ "%.2f"|format(calc.fixed_deduction) }}</strong></div>
+            <div><span>Total Deduction</span><strong>₹ {{ "%.2f"|format(calc.total_deduction) }}</strong></div>
+        </div>
+
+        <div class="net-salary">
+            <span>NET SALARY</span>
+            <strong>₹ {{ "%.2f"|format(calc.net_salary) }}</strong>
+        </div>
+
+        <div class="signature">
+            <span>Employee Signature</span>
+            <span>Authorized Signature</span>
+        </div>
+
+        <p class="footer-note">
+            This is a computer-generated salary slip and does not require any physical signature
+        </p>
+    </div>
+</div>
+</body>
+</html>

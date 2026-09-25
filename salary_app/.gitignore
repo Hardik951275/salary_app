@@ -1,0 +1,30 @@
+# Python virtual environment
+salary_app/venv/
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment/secrets
+.env
+.env.*
+
+# Generated files
+salary_app/generated_slips/
+salary_app/salary_slips/
+salary_app/*.pdf
+salary_app/*.zip
+
+# Uploaded/generated employee files
+salary_app/uploads/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
