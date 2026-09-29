@@ -1,0 +1,373 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #eef2f7;
+    color: #222;
+    line-height: 1.45;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 16px 40px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 12px;
+}
+
+.header h1 {
+    font-size: 1.6rem;
+    color: #1f4e79;
+}
+
+.header p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.badge {
+    background: #1f4e79;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+}
+
+.card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.card h2 {
+    font-size: 1.1rem;
+    color: #1f4e79;
+    margin-bottom: 8px;
+}
+
+.card h3 {
+    font-size: 0.95rem;
+    color: #1f4e79;
+    margin-bottom: 6px;
+}
+
+.muted {
+    color: #666;
+    font-size: 0.82rem;
+    margin-bottom: 12px;
+}
+
+label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin: 10px 0 4px;
+    color: #444;
+}
+
+input[type="file"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccd3db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: #fff;
+}
+
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    color: #fff;
+}
+
+.btn.primary { background: #1f4e79; }
+.btn.primary:hover { background: #163a5c; }
+.btn.success { background: #1a7f4b; }
+.btn.success:hover { background: #146339; }
+.btn.secondary { background: #6b7280; }
+.btn.secondary:hover { background: #4b5563; }
+
+.info {
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: #f0f6ff;
+    border-left: 3px solid #1f4e79;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    color: #333;
+}
+
+.alert {
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+}
+.alert.success { background: #e6f7ed; color: #146339; }
+.alert.error { background: #fde8e8; color: #9b1c1c; }
+
+.empty {
+    text-align: center;
+    padding: 30px 10px;
+    color: #666;
+}
+.empty-icon { font-size: 2rem; margin-bottom: 8px; }
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.section-title h2 { margin: 0; }
+.section-title span {
+    font-size: 0.85rem;
+    color: #666;
+    background: #eef2f7;
+    padding: 3px 10px;
+    border-radius: 12px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+th, td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e5e9ef;
+    white-space: nowrap;
+}
+
+th {
+    background: #1f4e79;
+    color: #fff;
+    font-weight: 600;
+}
+
+tr:nth-child(even) { background: #f7f9fc; }
+
+.divider {
+    border: none;
+    border-top: 1px solid #e5e9ef;
+    margin: 18px 0 14px;
+}
+
+/* ---- Salary slip paper ---- */
+.slip-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.salary-paper {
+    background: #fff;
+    border-radius: 8px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.company-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #1f4e79;
+}
+
+.company-brand {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.company-logo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.company-info h1 {
+    margin: 0 0 4px 0;
+    font-size: 1.25rem;
+    color: #1f4e79;
+}
+
+.company-address {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: #444;
+}
+
+.company-contact {
+    margin: 5px 0 0 0;
+    font-size: 0.72rem;
+    color: #555;
+}
+
+.company-contact a {
+    color: #1f4e79;
+    text-decoration: none;
+}
+
+.slip-title {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.slip-title p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.slip-title strong {
+    font-size: 1.05rem;
+    color: #1f4e79;
+}
+
+.employee-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    background: #f5f8fc;
+    border-radius: 6px;
+    border: 1px solid #e0e7ef;
+}
+
+.employee-box div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.employee-box span {
+    font-size: 0.7rem;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.employee-box strong {
+    font-size: 0.88rem;
+    color: #222;
+}
+
+.salary-paper h3 {
+    font-size: 0.95rem;
+    color: #1f4e79;
+    margin: 14px 0 8px;
+    border-bottom: 1px solid #e0e7ef;
+    padding-bottom: 4px;
+}
+
+.salary-table {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+.salary-table div {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 10px;
+    border-bottom: 1px solid #eef1f5;
+    font-size: 0.88rem;
+}
+
+.salary-table div:nth-child(even) {
+    background: #f9fafb;
+}
+
+.salary-table span { color: #444; }
+.salary-table strong { color: #111; }
+
+.net-salary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: #dce8f7;
+    border-radius: 6px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1f4e79;
+}
+
+.signature {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 36px;
+    padding-top: 8px;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.footer-note {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #999;
+}
+
+@media print {
+    .slip-actions, .header, .btn { display: none !important; }
+    body { background: #fff; }
+    .container { margin: 0; max-width: none; }
+    .salary-paper { box-shadow: none; padding: 0; }
+}

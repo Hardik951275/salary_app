@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Slip Generator — Six Sense Media</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div>
+            <h1>Salary Slip Generator</h1>
+            <p>Six Sense Media — Upload Excel → Select Employee → Generate / Download All</p>
+        </div>
+        <div class="badge">26-Day Payroll</div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="grid">
+        <section class="card">
+            <h2>1. Upload Employee Excel</h2>
+            <p class="muted">
+                Required columns:
+                Employee ID, Employee Name, Present Days, Paid Leave,
+                Basic Salary, Allowance, Deduction<br>
+                Optional: Designation, Department, Joining Date, PAN Number,
+                Bank Name, Bank Account Number, IFSC Code
+            </p>
+
+            <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+                <label>Select Excel File</label>
+                <input type="file" name="excel_file" accept=".xlsx,.xls" required>
+                <button class="btn primary" type="submit">Upload Excel</button>
+            </form>
+
+            <div class="info">
+                <strong>Payroll rule:</strong>
+                Sundays are weekly offs. The system calculates actual working
+                days for the selected month (usually 26/27 depending on Sundays).
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>2. Generate Salary Slip</h2>
+
+            {% if employees %}
+            <form action="{{ url_for('generate') }}" method="POST">
+                <label>Employee</label>
+                <select name="employee_id" required>
+                    <option value="">Select Employee</option>
+                    {% for emp in employees %}
+                    <option value="{{ emp.employee_id }}">
+                        {{ emp.employee_name }} — {{ emp.employee_id }}
+                        {% if emp.designation %} ({{ emp.designation }}){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <div class="two-col">
+                    <div>
+                        <label>Month</label>
+                        <select name="month" required>
+                            {% for m in range(1,13) %}
+                            <option value="{{ m }}" {% if m == 9 %}selected{% endif %}>
+                                {{ ["","January","February","March","April","May","June","July","August","September","October","November","December"][m] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label>Year</label>
+                        <input type="number" name="year" value="2026" min="2020" max="2100" required>
+                    </div>
+                </div>
+
+                <button class="btn success" type="submit">Generate Salary Slip</button>
+            </form>
+
+            <hr class="divider">
+
+            <h3 style="margin-top:0">Download All Slips (ZIP)</h3>
+            <p class="muted">Creates a PDF for every employee and packs them into one ZIP file.</p>
+            <form action="{{ url_for('download_all') }}" method="POST">
+                <div class="two-col">
+                    <div>
+                        <label>Month</label>
+                        <select name="month" required>
+                            {% for m in range(1,13) %}
+                            <option value="{{ m }}" {% if m == 9 %}selected{% endif %}>
+                                {{ ["","January","February","March","April","May","June","July","August","September","October","November","December"][m] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label>Year</label>
+                        <input type="number" name="year" value="2026" min="2020" max="2100" required>
+                    </div>
+                </div>
+                <button class="btn primary" type="submit">Download All PDFs (ZIP)</button>
+            </form>
+            {% else %}
+                <div class="empty">
+                    <div class="empty-icon">📊</div>
+                    <h3>No Employee Data</h3>
+                    <p>Upload your Excel file first.</p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+    {% if employees %}
+    <section class="card">
+        <div class="section-title">
+            <h2>Employee Data</h2>
+            <span>{{ employees|length }} employees</span>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Designation</th>
+                        <th>Department</th>
+                        <th>Joining</th>
+                        <th>Present</th>
+                        <th>Paid Leave</th>
+                        <th>Basic</th>
+                        <th>Allowance</th>
+                        <th>Deduction</th>
+                        <th>PAN</th>
+                        <th>Bank A/c</th>
+                        <th>IFSC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees %}
+                    <tr>
+                        <td>{{ emp.employee_id }}</td>
+                        <td>{{ emp.employee_name }}</td>
+                        <td>{{ emp.designation or "—" }}</td>
+                        <td>{{ emp.department or "—" }}</td>
+                        <td>{{ emp.joining_date or "—" }}</td>
+                        <td>{{ emp.present_days }}</td>
+                        <td>{{ emp.paid_leave }}</td>
+                        <td>₹ {{ "%.0f"|format(emp.basic_salary) }}</td>
+                        <td>₹ {{ "%.0f"|format(emp.allowance) }}</td>
+                        <td>₹ {{ "%.0f"|format(emp.deduction) }}</td>
+                        <td>{{ emp.pan_number or "—" }}</td>
+                        <td>{{ emp.bank_account_number or "—" }}</td>
+                        <td>{{ emp.ifsc_code or "—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+</div>
+</body>
+</html>
