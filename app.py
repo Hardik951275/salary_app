@@ -13,6 +13,8 @@ from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, HRFlowable
 )
 from reportlab.lib.units import mm
+# REMOVE: from weasyprint import HTML   ← delete this line
+
 
 app = Flask(__name__)
 app.secret_key = "change-this-secret-key"
@@ -24,21 +26,29 @@ os.makedirs(STATIC_FOLDER, exist_ok=True)
 
 EMPLOYEE_FILE = os.path.join(UPLOAD_FOLDER, "employees.xlsx")
 
+# ... keep all your existing helper functions exactly as they are
+# (normalize_columns, load_employees, working_days_without_sundays,
+#  calculate_salary, money, _find_logo, generate_pdf)
+
+
+
 # Company details
 COMPANY_NAME = "Six Sense Media"
 COMPANY_ADDRESS = (
-    "Office no. 403, Jyoti building, Sheri.10,\n"
-    "Mavdi Main Road, Sri Nath Society,\n"
+    "Office no. 404, Jyoti building,\n"
+    "Mavdi Main Road, Shree Nath Society,\n"
     "Rajkot, Gujarat 360004"
 )
 COMPANY_WEB = "www.sixsensemedia.com"
 COMPANY_EMAIL = "info@sixsensemedia.com"
-COMPANY_PHONE = "+91 91046 8495"
+COMPANY_PHONE = "+91 91046 84954"
+COMPANY_GST = "24AFNFS7501L1ZM"
+
 LOGO_CANDIDATES = [
+    os.path.join(STATIC_FOLDER, "SixSense.jpeg"),
+    os.path.join(STATIC_FOLDER, "SixSense.jpg"),
     os.path.join(STATIC_FOLDER, "logo.png"),
     os.path.join(STATIC_FOLDER, "logo.jpg"),
-    os.path.join(STATIC_FOLDER, "2.jpeg"),
-    os.path.join(STATIC_FOLDER, "2.jpg"),
 ]
 
 
@@ -187,7 +197,7 @@ def calculate_salary(row, year, month):
 
 
 def money(value):
-    return f"₹ {value:,.2f}"
+    return f"Rs. {value:,.2f}"
 
 
 def _find_logo():
@@ -204,163 +214,181 @@ def generate_pdf(employee, calc, year, month):
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
-        rightMargin=28,
-        leftMargin=28,
-        topMargin=24,
-        bottomMargin=24,
+        rightMargin=18,
+        leftMargin=18,
+        topMargin=15,
+        bottomMargin=15,
     )
 
     styles = getSampleStyleSheet()
+
+    # Styles
     company_name_style = ParagraphStyle(
-        "CompanyName",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=14,
-        textColor=colors.HexColor("#1f4e79"),
-        spaceAfter=2,
+        "CompanyName", parent=styles["Normal"],
+        fontName="Helvetica-Bold", fontSize=14,
+        textColor=colors.HexColor("#1a202c"), spaceAfter=1
     )
     small = ParagraphStyle(
-        "Small",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=8,
-        leading=11,
-        textColor=colors.HexColor("#333333"),
+        "Small", parent=styles["Normal"],
+        fontName="Helvetica", fontSize=7.5, leading=9.5,
+        textColor=colors.HexColor("#2d3748")
     )
     small_center = ParagraphStyle(
-        "SmallCenter",
-        parent=small,
-        alignment=TA_CENTER,
+        "SmallCenter", parent=small, alignment=TA_CENTER
     )
-    title = ParagraphStyle(
-        "TitleCustom",
-        parent=styles["Title"],
-        alignment=TA_CENTER,
-        fontSize=14,
-        textColor=colors.HexColor("#1f4e79"),
-        spaceAfter=2,
-        spaceBefore=4,
+    title_style = ParagraphStyle(
+        "TitleCustom", parent=styles["Normal"],
+        fontName="Helvetica-Bold", fontSize=13,
+        textColor=colors.HexColor("#1a202c"),
+        alignment=TA_CENTER, spaceBefore=4, spaceAfter=1
     )
-    right = ParagraphStyle(
-        "Right",
-        parent=styles["Normal"],
-        alignment=TA_RIGHT,
-        fontSize=9,
+    section_style = ParagraphStyle(
+        "Section", parent=styles["Normal"],
+        fontName="Helvetica-Bold", fontSize=9.5,
+        textColor=colors.HexColor("#2b6cb0"),
+        spaceBefore=8, spaceAfter=3
     )
-    section = ParagraphStyle(
-        "Section",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=10,
-        textColor=colors.HexColor("#1f4e79"),
-        spaceBefore=8,
-        spaceAfter=4,
+    label_style = ParagraphStyle(
+        "Label", parent=styles["Normal"],
+        fontName="Helvetica", fontSize=7.5,
+        textColor=colors.HexColor("#4a5568")
+    )
+    value_style = ParagraphStyle(
+        "Value", parent=styles["Normal"],
+        fontName="Helvetica-Bold", fontSize=8,
+        textColor=colors.HexColor("#1a202c")
+    )
+    net_style = ParagraphStyle(
+        "Net", parent=styles["Normal"],
+        fontName="Helvetica-Bold", fontSize=12,
+        textColor=colors.HexColor("#22543d"), alignment=TA_CENTER
     )
 
     story = []
 
-    # ----- Company header -----
+    # ========== HEADER ==========
     logo_path = _find_logo()
-    addr_html = COMPANY_ADDRESS.replace("\n", "<br/>")
-    contact_line = f"{COMPANY_WEB}  |  {COMPANY_EMAIL}  |  {COMPANY_PHONE}"
-
     left_content = []
+
     if logo_path:
         try:
-            img = Image(logo_path, width=18 * mm, height=18 * mm)
+            img = Image(logo_path, width=20*mm, height=20*mm)
             left_content.append(img)
-        except Exception:
+        except:
             pass
 
-    info_paras = [
+    company_info = [
         Paragraph(COMPANY_NAME, company_name_style),
-        Paragraph(addr_html, small),
-        Paragraph(contact_line, small),
+        Paragraph(COMPANY_ADDRESS.replace("\n", "<br/>"), small),
+        Paragraph(f"{COMPANY_WEB}  |  {COMPANY_EMAIL}  |  {COMPANY_PHONE}", small),
+        Paragraph(f"GST No.- {COMPANY_GST}", small),
     ]
 
     if left_content:
-        header_table = Table(
-            [[left_content[0], info_paras]],
-            colWidths=[22 * mm, 150 * mm],
-        )
-        header_table.setStyle(TableStyle([
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-            ("LEFTPADDING", (0, 0), (-1, -1), 0),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 4),
-            ("TOPPADDING", (0, 0), (-1, -1), 0),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-        ]))
-        story.append(header_table)
+        header_data = [[left_content[0], company_info]]
+        header_table = Table(header_data, colWidths=[25*mm, 155*mm])
     else:
-        for p in info_paras:
-            story.append(p)
+        header_data = [[company_info]]
+        header_table = Table(header_data, colWidths=[180*mm])
 
-    story.append(Spacer(1, 6))
-    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#1f4e79")))
-    story.append(Paragraph("SALARY SLIP", title))
-    story.append(Paragraph(f"Monthly Salary Statement — {month_name}", small_center))
-    story.append(Spacer(1, 10))
+    header_table.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+    story.append(header_table)
 
-    # ----- Employee info -----
-    emp_rows = [
-        ["Employee ID", str(employee.get("employee_id", "")),
-         "Salary Month", month_name],
-        ["Employee Name", str(employee.get("employee_name", "")),
-         "Designation", str(employee.get("designation", ""))],
-        ["Department", str(employee.get("department", "")),
-         "Joining Date", str(employee.get("joining_date", ""))],
-        ["PAN Number", str(employee.get("pan_number", "")),
-         "Working Days", str(calc["working_days"])],
-        ["Bank Name", str(employee.get("bank_name", "")),
-         "Account No.", str(employee.get("bank_account_number", ""))],
-        ["IFSC Code", str(employee.get("ifsc_code", "")),
-         "", ""],
+    story.append(Spacer(1, 4))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#2b6cb0")))
+    
+    # Title
+    story.append(Paragraph("SALARY SLIP", title_style))
+    story.append(Paragraph(f"<b>{month_name}</b>", small_center))
+    story.append(Spacer(1, 8))
+
+    # ========== EMPLOYEE INFO (Grid like your HTML) ==========
+    emp_fields = [
+        ("Employee ID", str(employee.get("employee_id", ""))),
+        ("Employee Name", str(employee.get("employee_name", ""))),
+        ("Designation", str(employee.get("designation") or "—")),
+        ("Department", str(employee.get("department") or "—")),
+        ("Joining Date", str(employee.get("joining_date") or "—")),
+        ("PAN Number", str(employee.get("pan_number") or "—")),
+        ("Bank Name", str(employee.get("bank_name") or "—")),
+        ("Account Number", str(employee.get("bank_account_number") or "—")),
+        ("IFSC Code", str(employee.get("ifsc_code") or "—")),
+        ("Working Days", str(calc["working_days"])),
+        ("Total Calendar Days", str(calc["total_calendar_days"])),
+        ("Salary Month", month_name),
     ]
 
-    t = Table(emp_rows, colWidths=[95, 160, 95, 130])
-    t.setStyle(TableStyle([
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.grey),
-        ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f0f4f8")),
-        ("BACKGROUND", (2, 0), (2, -1), colors.HexColor("#f0f4f8")),
-        ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
-        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
-        ("FONTNAME", (2, 0), (2, -1), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, -1), 8),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("PADDING", (0, 0), (-1, -1), 5),
-        ("SPAN", (1, 5), (3, 5)),
-    ]))
-    story.append(t)
-    story.append(Spacer(1, 10))
+    # Create 3 columns grid
+    emp_rows = []
+    for i in range(0, 12, 3):
+        row = []
+        for j in range(3):
+            if i + j < len(emp_fields):
+                label, value = emp_fields[i + j]
+                cell = [
+                    Paragraph(label, label_style),
+                    Paragraph(value, value_style)
+                ]
+                row.append(cell)
+            else:
+                row.append("")
+        emp_rows.append(row)
 
-    # ----- Attendance -----
-    story.append(Paragraph("Attendance", section))
-    attendance = [
-        ["Particulars", "Days"],
-        ["Total Calendar Days", str(calc["total_calendar_days"])],
+    emp_table = Table(emp_rows, colWidths=[60*mm, 60*mm, 60*mm])
+    emp_table.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 0.6, colors.HexColor("#cbd5e0")),
+        ("INNERGRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#e2e8f0")),
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f7fafc")),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+    ]))
+    story.append(emp_table)
+    story.append(Spacer(1, 8))
+
+    # ========== ATTENDANCE ==========
+    story.append(Paragraph("Attendance", section_style))
+
+    att_data = [
+        [Paragraph("<b>Particulars</b>", value_style), Paragraph("<b>Days</b>", value_style)],
         ["Sunday / Weekly Off", str(calc["sundays"])],
-        ["Total Working Days", str(calc["working_days"])],
         ["Present Days", str(calc["present_days"])],
         ["Paid Leave", str(calc["paid_leave"])],
         ["Unpaid Leave", str(calc["unpaid_leave"])],
-        ["Paid Days", str(calc["paid_days"])],
+        [Paragraph("<b>Paid Days</b>", value_style), Paragraph(f"<b>{calc['paid_days']}</b>", value_style)],
     ]
-    at = Table(attendance, colWidths=[340, 140])
-    at.setStyle(TableStyle([
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.grey),
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e9eef5")),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+
+    att_table = Table(att_data, colWidths=[130*mm, 50*mm])
+    att_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#a0aec0")),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2b6cb0")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#ebf8ff")),
+        ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
         ("FONTSIZE", (0, 0), (-1, -1), 8),
-        ("ALIGN", (1, 0), (1, -1), "RIGHT"),
-        ("PADDING", (0, 0), (-1, -1), 5),
+        ("ALIGN", (1, 0), (1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
     ]))
-    story.append(at)
+    story.append(att_table)
     story.append(Spacer(1, 8))
 
-    # ----- Salary -----
-    story.append(Paragraph("Earnings / Deductions", section))
-    salary = [
-        ["Particulars", "Amount"],
+    # ========== SALARY DETAILS ==========
+    story.append(Paragraph("Salary Details", section_style))
+
+    sal_data = [
+        [Paragraph("<b>Particulars</b>", value_style), Paragraph("<b>Amount</b>", value_style)],
         ["Basic Salary", money(calc["basic_salary"])],
         ["Allowance", money(calc["allowance"])],
         ["Monthly Gross Salary", money(calc["gross_monthly"])],
@@ -369,38 +397,62 @@ def generate_pdf(employee, calc, year, month):
         ["Unpaid Leave Deduction", money(calc["unpaid_leave_deduction"])],
         ["Other / Fixed Deduction", money(calc["fixed_deduction"])],
         ["Total Deduction", money(calc["total_deduction"])],
-        ["NET SALARY", money(calc["net_salary"])],
     ]
-    st = Table(salary, colWidths=[340, 140])
-    st.setStyle(TableStyle([
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.grey),
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e9eef5")),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("FONTNAME", (0, -1), (-1, -1), "Helvetica-Bold"),
-        ("FONTSIZE", (0, 0), (-1, -1), 8),
-        ("ALIGN", (1, 1), (1, -1), "RIGHT"),
-        ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#dce8f7")),
-        ("PADDING", (0, 0), (-1, -1), 5),
-    ]))
-    story.append(st)
-    story.append(Spacer(1, 24))
 
-    sig = Table(
-        [["Employee Signature", "Authorized Signature"]],
-        colWidths=[240, 240],
-    )
-    sig.setStyle(TableStyle([
+    sal_table = Table(sal_data, colWidths=[130*mm, 50*mm])
+    sal_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#a0aec0")),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2b6cb0")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
         ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
-        ("FONTSIZE", (0, 0), (-1, -1), 9),
-        ("ALIGN", (0, 0), (0, 0), "LEFT"),
-        ("ALIGN", (1, 0), (1, 0), "RIGHT"),
-        ("TOPPADDING", (0, 0), (-1, -1), 20),
+        ("FONTSIZE", (0, 0), (-1, -1), 8),
+        ("ALIGN", (1, 0), (1, -1), "RIGHT"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
     ]))
-    story.append(sig)
-    story.append(Spacer(1, 12))
+    story.append(sal_table)
+    story.append(Spacer(1, 8))
+
+    # ========== NET SALARY ==========
+    net_data = [[
+        Paragraph("NET SALARY", net_style),
+        Paragraph(money(calc["net_salary"]), net_style)
+    ]]
+    net_table = Table(net_data, colWidths=[90*mm, 90*mm])
+    net_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#c6f6d5")),
+        ("BOX", (0, 0), (-1, -1), 1.5, colors.HexColor("#38a169")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    story.append(net_table)
+
+    story.append(Spacer(1, 22))
+
+    # ========== SIGNATURE ==========
+    sig_data = [
+        ["____________________________", "____________________________"],
+        ["Employee Signature", "Authorized Signature"]
+    ]
+    sig_table = Table(sig_data, colWidths=[90*mm, 90*mm])
+    sig_table.setStyle(TableStyle([
+        ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
+        ("FONTSIZE", (0, 0), (-1, -1), 8),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("TOPPADDING", (0, 0), (-1, 0), 12),
+        ("BOTTOMPADDING", (0, 1), (-1, 1), 2),
+    ]))
+    story.append(sig_table)
+
+    story.append(Spacer(1, 10))
     story.append(Paragraph(
-        "This is a computer-generated salary slip.",
-        small_center,
+        "This is a computer-generated salary slip and does not require any physical signature",
+        small_center
     ))
 
     doc.build(story)
@@ -470,6 +522,9 @@ def generate():
 @app.route("/download", methods=["POST"])
 def download():
     df = load_employees()
+    if df.empty:
+        flash("Please upload your employee Excel file first.", "error")
+        return redirect(url_for("index"))
 
     employee_id = str(request.form.get("employee_id", ""))
     year = int(request.form.get("year"))
@@ -483,21 +538,20 @@ def download():
     employee = matches.iloc[0].to_dict()
     calc = calculate_salary(employee, year, month)
 
-    pdf = generate_pdf(employee, calc, year, month)
+    pdf_buffer = generate_pdf(employee, calc, year, month)
+
     safe_name = str(employee.get("employee_name", "Employee")).replace(" ", "_")
     filename = f"SalarySlip_{safe_name}_{year}_{month:02d}.pdf"
 
     return send_file(
-        pdf,
+        pdf_buffer,
         as_attachment=True,
         download_name=filename,
-        mimetype="application/pdf",
+        mimetype="application/pdf"
     )
-
-
+    
 @app.route("/download_all", methods=["POST"])
 def download_all():
-    """Generate salary slips for ALL employees and return as a ZIP."""
     df = load_employees()
 
     if df.empty:
@@ -528,7 +582,6 @@ def download_all():
         download_name=zip_name,
         mimetype="application/zip",
     )
-
 
 if __name__ == "__main__":
     app.run(debug=True)
