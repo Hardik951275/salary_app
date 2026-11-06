@@ -28,3 +28,4 @@ salary_app/uploads/
 # OS
 Thumbs.db
 .DS_Store
+uploads/employees.xlsx
