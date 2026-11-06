@@ -1,5 +1,6 @@
 ﻿flask
 pandas
 openpyxl
-reportlab
+xlrd
+reportlab>=4.0,<5
 gunicorn

@@ -13,7 +13,7 @@
             <h1>Salary Slip Generator</h1>
             <p>Six Sense Media — Upload Excel → Select Employee → Generate / Download All</p>
         </div>
-        <div class="badge">26-Day Payroll</div>
+        <div class="badge">Calendar-Day Payroll</div>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -43,8 +43,9 @@
 
             <div class="info">
                 <strong>Payroll rule:</strong>
-                Sundays are weekly offs. The system calculates actual working
-                days for the selected month (usually 26/27 depending on Sundays).
+                Salary uses the month's calendar-day count. Sundays are included
+                as paid days. Enter Present Days including Sundays, excluding all leave;
+                enter Paid Leave separately. Unpaid leave is calculated automatically.
             </div>
         </section>
 
@@ -69,7 +70,7 @@
                         <label>Month</label>
                         <select name="month" required>
                             {% for m in range(1,13) %}
-                            <option value="{{ m }}" {% if m == 9 %}selected{% endif %}>
+                            <option value="{{ m }}" {% if m == current_month %}selected{% endif %}>
                                 {{ ["","January","February","March","April","May","June","July","August","September","October","November","December"][m] }}
                             </option>
                             {% endfor %}
@@ -77,7 +78,7 @@
                     </div>
                     <div>
                         <label>Year</label>
-                        <input type="number" name="year" value="2026" min="2020" max="2100" required>
+                        <input type="number" name="year" value="{{ current_year }}" min="2000" max="2100" required>
                     </div>
                 </div>
 
@@ -94,7 +95,7 @@
                         <label>Month</label>
                         <select name="month" required>
                             {% for m in range(1,13) %}
-                            <option value="{{ m }}" {% if m == 9 %}selected{% endif %}>
+                            <option value="{{ m }}" {% if m == current_month %}selected{% endif %}>
                                 {{ ["","January","February","March","April","May","June","July","August","September","October","November","December"][m] }}
                             </option>
                             {% endfor %}
@@ -102,7 +103,7 @@
                     </div>
                     <div>
                         <label>Year</label>
-                        <input type="number" name="year" value="2026" min="2020" max="2100" required>
+                        <input type="number" name="year" value="{{ current_year }}" min="2000" max="2100" required>
                     </div>
                 </div>
                 <button class="btn primary" type="submit">Download All PDFs (ZIP)</button>
